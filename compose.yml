@@ -44,92 +44,92 @@ services:
     networks:
       - workhub_network
 
-  # frontend:
-  #   image: workhub.azurecr.io/client
-  #   container_name: frontend
-  #   ports:
-  #     - "127.0.0.1:3000:3000"
-  #   environment:
-  #     NEXT_PUBLIC_API_URL: "${NEXT_PUBLIC_API_URL}"
-  #     NEXT_PUBLIC_MSAL_TENANT_ID: "${NEXT_PUBLIC_MSAL_TENANT_ID}"
-  #     NEXT_PUBLIC_MSAL_CLIENT_ID: "${NEXT_PUBLIC_MSAL_CLIENT_ID}"
-  #     NEXT_PUBLIC_MSAL_REDIRECT_URI: "${NEXT_PUBLIC_MSAL_REDIRECT_URI}"
-  #     NEXT_PUBLIC_MSAL_CLIENT_SECRET: "${NEXT_PUBLIC_MSAL_CLIENT_SECRET}"
-  #     DJANGO_API_BASE_URL: "${DJANGO_API_BASE_URL}"
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - app
-  #   networks:
-  #     - workhub_network
+  frontend:
+    image: workhub.azurecr.io/client
+    container_name: frontend
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: "${NEXT_PUBLIC_API_URL}"
+      NEXT_PUBLIC_MSAL_TENANT_ID: "${NEXT_PUBLIC_MSAL_TENANT_ID}"
+      NEXT_PUBLIC_MSAL_CLIENT_ID: "${NEXT_PUBLIC_MSAL_CLIENT_ID}"
+      NEXT_PUBLIC_MSAL_REDIRECT_URI: "${NEXT_PUBLIC_MSAL_REDIRECT_URI}"
+      NEXT_PUBLIC_MSAL_CLIENT_SECRET: "${NEXT_PUBLIC_MSAL_CLIENT_SECRET}"
+      DJANGO_API_BASE_URL: "${DJANGO_API_BASE_URL}"
+    restart: unless-stopped
+    depends_on:
+      - app
+    networks:
+      - workhub_network
 
-  # celery:
-  #   image: workhub.azurecr.io/backend
-  #   container_name: celery
-  #   command: >
-  #     celery -A IBOS worker
-  #     -l INFO
-  #     --concurrency=1
-  #     --prefetch-multiplier=1
-  #     --max-tasks-per-child=10
-  #   restart: always
-  #   environment:
-  #     DATABASE_URL: ${DATABASE_URL}
-  #     REDIS_URL: ${REDIS_URL}
-  #     SECRET_KEY: ${SECRET_KEY}
-  #   depends_on:
-  #     pgdb:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_started
-  #     app:
-  #       condition: service_started
-  #   healthcheck:
-  #     test: ["CMD", "celery", "-A", "IBOS", "inspect", "ping"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
-  #   networks:
-  #     - workhub_network
+  celery:
+    image: workhub.azurecr.io/backend
+    container_name: celery
+    command: >
+      celery -A IBOS worker
+      -l INFO
+      --concurrency=1
+      --prefetch-multiplier=1
+      --max-tasks-per-child=10
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      pgdb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      app:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "celery", "-A", "IBOS", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - workhub_network
 
-  # celery_beat:
-  #   image: workhub.azurecr.io/backend
-  #   container_name: celery_beat
-  #   command: celery -A IBOS beat -l INFO
-  #   restart: always
-  #   environment:
-  #     DATABASE_URL: ${DATABASE_URL}
-  #     REDIS_URL: ${REDIS_URL}
-  #     SECRET_KEY: ${SECRET_KEY}
-  #   depends_on:
-  #     pgdb:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_started
-  #     app:
-  #       condition: service_started
-  #   networks:
-  #     - workhub_network
+  celery_beat:
+    image: workhub.azurecr.io/backend
+    container_name: celery_beat
+    command: celery -A IBOS beat -l INFO
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      pgdb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      app:
+        condition: service_started
+    networks:
+      - workhub_network
 
-  # proxy:
-  #   image: workhub.azurecr.io/proxy
-  #   container_name: proxy
-  #   restart: always
-  #   depends_on:
-  #     app:
-  #       condition: service_started
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - static-data:/vol/static
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         memory: 256M
-  #       reservations:
-  #         memory: 128M
-  #   networks:
-  #     - workhub_network
+  proxy:
+    image: workhub.azurecr.io/proxy
+    container_name: proxy
+    restart: always
+    depends_on:
+      app:
+        condition: service_started
+    ports:
+      - "80:80"
+    volumes:
+      - static-data:/vol/static
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    networks:
+      - workhub_network
 
 networks:
   workhub_network:
